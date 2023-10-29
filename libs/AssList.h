@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef ASSLIST_IMPL
+
+#ifndef LL_IMPL
+#define LL_IMPL
+#include "Ll.h"
+#endif
 typedef struct {
     char *key;
     void *value;
@@ -30,3 +36,4 @@ void* AssGet(AssList *list, char *key){
     } while(strcmp(tmp->key, key)!=0 && i<list->size);
     return tmp->value;
 }
+#endif

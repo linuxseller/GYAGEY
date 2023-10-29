@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef LL_IMPL
 typedef struct Node {
     void *value;
     struct Node *next;
@@ -11,7 +12,6 @@ typedef struct {
     Node *ptr;
     int size;
 } Llist;
-
 Llist LlInit(void){
     return (Llist){NULL, 0};
 }
@@ -71,3 +71,4 @@ int LlPop(Llist *a, int index){
 void *LlGetAt(Llist *a, int index){
     return NodeGetPtrAt(a->ptr, index)->value;
 }
+#endif

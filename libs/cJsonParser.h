@@ -1,18 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "Ll.c"
+
+#ifndef LL_IMPL
+#define LL_IMPL
+#include "Ll.h"
+#endif
+
 #ifndef CLOGGER_IMPL
 #define CLOGGER_IMPL
 #include "clogger.h"
 #endif
+
 typedef struct {
     char* key;
     char *value;
 } JsonPairString;
 
 char *JsonText;
-
+#ifdef JSON_IMPL
 char *JsonReadWholeFile(const char *fileName){
     FILE *f = fopen(fileName, "rb");
     if(f==NULL){return NULL;}
@@ -66,3 +72,4 @@ Llist *JsonParseStringArrToLl(char **jsonText){
     *jsonText+=1;
     return strList;
 }
+#endif

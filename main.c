@@ -3,11 +3,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+
 #define CLOGGER_IMPL
 #include "libs/clogger.h"
 #define JSONLOG
-#include "libs/cJsonParser.c"
-#include "libs/AssList.c"
+#define JSON_IMPL
+#include "libs/cJsonParser.h"
+#define ASSLIST_IMPL
+#include "libs/AssList.h"
 
 #define DEFAULT_W 720
 #define DEFAULT_H 480
