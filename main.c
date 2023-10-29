@@ -6,7 +6,7 @@
 
 #define CLOGGER_IMPL
 #include "libs/clogger.h"
-#define JSONLOG
+//#define JSONLOG
 #define JSON_IMPL
 #include "libs/cJsonParser.h"
 #define ASSLIST_IMPL
@@ -16,6 +16,9 @@
 #define DEFAULT_H 480
 #define SPACING 10*scale
 #define FONT_FILENAME "resources/fonts/OpenSans-Regular.ttf"
+#define TEXTSPEED 10
+
+#define JET (Color){48,48,48, 255}
 
 int min(int x, int y){
   return (x < y) ? x : y;
@@ -26,13 +29,16 @@ typedef struct {
     char *text;
     Color bdColor;
     Color bgColor;
+    Color hoverColor;
+    Color hoverColorText;
     int lenPx;
 } Button;
 
 #define DRAWBTN(btn){ \
-    DrawRectangleRounded(btn.rec, 0.5, 5, btn.bgColor); \
+    bool hovered = CheckCollisionPointRec(mousePosition, btn.rec);\
+    DrawRectangleRounded(btn.rec, 0.5, 5, (hovered)?btn.hoverColor:btn.bgColor); \
     DrawRectangleRoundedLines(btn.rec, 0.5, 5, 2, btn.bdColor); \
-    DrawTextEx(gameFont, btn.text, (Vector2){btn.rec.x+5,btn.rec.y+5}, textSize, 1, btn.bdColor); \
+    DrawTextEx(gameFont, btn.text, (Vector2){btn.rec.x+5,btn.rec.y+5}, textSize, 1, (!hovered)?btn.bdColor:btn.hoverColorText); \
 }
 
 #define ENTRYCHECK(str){ \
@@ -46,7 +52,7 @@ typedef struct {
     int number;
     Llist *characterLl;
     Texture2D *background;
-    Llist *lineLl;
+    Llist *voiceLineLl;
     Music *music;
 } Scene;
 
@@ -54,16 +60,6 @@ typedef struct {
     char *name;
     char *line;
 } VoiceLine;
-
-void FreeScene(Scene scene){
-    LlFree(scene.characterLl);
-    printf("[INFO] charactersLl freed\n");
-    LlFree(scene.lineLl);
-    printf("[INFO] lineLl freed\n");
-    UnloadMusicStream(*scene.music);
-    printf("[INFO] Music freed\n");
-    UnloadTexture(*scene.background);
-}
 
 Scene *ParseSceneJson(char **gameJson){
     Scene *scene = malloc(sizeof(Scene));
@@ -114,16 +110,17 @@ Scene *ParseSceneJson(char **gameJson){
         LlAppend(lineList, vl);
     }
     jsonEntry = JsonPEAS(gameJson);
-    scene->lineLl = lineList;
+    scene->voiceLineLl = lineList;
     return scene;
 }
 //printf("Hello My Froinde!\n"); exit(0);
 int main(int argc, char **argv){
-    if(argc<2){
-        clogger(CLOGGER_ERROR, "game json file not provided.\n");
-        exit(1);
+    char *gameJsonFileName = "game.json";
+    if(argc==2){
+        gameJsonFileName = argv[1];
+        //clogger(CLOGGER_ERROR, "game json file not provided.\n");
+        //exit(1);
     }
-    char *gameJsonFileName = argv[1];
     // Raylib initialising.
     int screenWidth = DEFAULT_W;
     int screenHeight = DEFAULT_H;
@@ -131,14 +128,15 @@ int main(int argc, char **argv){
     int screenHalfY = screenHeight/2;
     SetTraceLogLevel(LOG_ERROR);
     InitWindow(screenWidth, screenHeight, "VisNov game Engine");
-    //SetTargetFPS(120);
+    SetTargetFPS(120);
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     InitAudioDevice();
     SetExitKey(KEY_F10);
-    bool gameStarted    = false;
+    bool menuOpened     = true;
     bool audioMuted     = true;
     bool settingsOpened = false;
     int tmp;
+    int framesCounter = 0;
     //-Raylib initialising.-
 
     // Variables setup.
@@ -156,7 +154,7 @@ int main(int argc, char **argv){
     jsonEntry = JsonPEAS(&gameJson);
     ENTRYCHECK("Name")
     char *gameName = JsonPEAS(&gameJson);
-
+    SetWindowTitle(gameName);
     jsonEntry = JsonPEAS(&gameJson);
     ENTRYCHECK("MenuBg")
     Texture2D bgMenu = LoadTexture(JsonPEAS(&gameJson));
@@ -189,7 +187,7 @@ int main(int argc, char **argv){
     
     char *nameStrPtr;
     char *textStrPtr;
-    int replicaNumber=0;
+    int voiceLineId=0;
     
     //-Variables setup.-
 
@@ -209,7 +207,7 @@ int main(int argc, char **argv){
         if(settingsOpened){
             tmp = MeasureTextEx(gameFont, "Mute", textSize, 1).x;
             Button muteBtn = (Button){(Rectangle){screenHalfX-tmp/2, screenHalfY, SPACING+tmp, SPACING+textSize},
-                                        "Mute", BLACK, (audioMuted)?GRAY:WHITE, tmp};
+                                        "Mute", BLACK, (audioMuted)?GRAY:WHITE, JET, RAYWHITE, tmp};
             if(CheckCollisionPointRec(mousePosition, muteBtn.rec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                 SetMasterVolume((audioMuted)?0.5: 0);
                 audioMuted=!audioMuted;
@@ -220,23 +218,22 @@ int main(int argc, char **argv){
             EndDrawing();
             continue;
         }
-        if(!gameStarted){
+        if(menuOpened){
             tmp = MeasureTextEx(gameFont, "Start Game", textSize, 1).x;
             Rectangle startBtnRec = (Rectangle){screenHalfX-tmp/2, screenHalfY, SPACING+tmp, SPACING+textSize};
-            Button startBtn = (Button){startBtnRec, "Start Game", BLACK, WHITE, tmp};
+            Button startBtn = (Button){startBtnRec, "Start Game", BLACK, WHITE, JET, RAYWHITE, tmp};
             tmp = MeasureTextEx(gameFont, "Settings", textSize, 1).x;
             Rectangle settingsBtnRec = (Rectangle){screenHalfX-tmp/2, screenHalfY+startBtn.rec.height+SPACING, SPACING+tmp, SPACING+textSize};
-            Button settingsBtn = (Button){settingsBtnRec, "Settings", BLACK, WHITE, tmp};
+            Button settingsBtn = (Button){settingsBtnRec, "Settings", BLACK, WHITE, JET, RAYWHITE, tmp};
 
             if(CheckCollisionPointRec(mousePosition, startBtn.rec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                sceneId=0;
-                replicaNumber=0;
+                sceneId = voiceLineId = 0;
                 scene = *(Scene *)LlGetAt(sceneLl, sceneId++);
-                VoiceLine *vl = LlGetAt(scene.lineLl, replicaNumber);
+                VoiceLine *vl = LlGetAt(scene.voiceLineLl, voiceLineId);
                 nameStrPtr = vl->name;
                 textStrPtr = vl->line;
 
-                gameStarted = true;
+                menuOpened = false;
                 if(audioMuted){
                     SetMasterVolume(0);
                 }
@@ -258,7 +255,7 @@ int main(int argc, char **argv){
         }
         if(ending){
             if(IsKeyPressed(KEY_R)){
-                gameStarted=false;
+                menuOpened=true;
                 ending=false;
                 continue;
             }
@@ -274,34 +271,36 @@ int main(int argc, char **argv){
         // Game part HERE.
         // Update variables.
         if(IsKeyPressed(KEY_SPACE)){
-            replicaNumber++;
-            if(replicaNumber>=scene.lineLl->size){
+            if(framesCounter/TEXTSPEED<(int)strlen(textStrPtr)){
+                framesCounter=10000;
+                goto drawing;
+            }
+            framesCounter=0;
+            voiceLineId++;
+            if(voiceLineId>=scene.voiceLineLl->size){
                 StopMusicStream(*scene.music);
                 if(sceneId+1>sceneLl->size){
                     ending=true;
                     continue;
                 }
-                scene = *(Scene *)LlGetAt(sceneLl, sceneId);
-                sceneId++;
+                scene = *(Scene *)LlGetAt(sceneLl, sceneId++);
                 PlayMusicStream(*scene.music);
-                replicaNumber = 0;
-                VoiceLine *vl = LlGetAt(scene.lineLl, replicaNumber);
-                nameStrPtr = vl->name;
-                textStrPtr = vl->line;
-            } else {
-                VoiceLine *vl = LlGetAt(scene.lineLl, replicaNumber);
-                nameStrPtr = vl->name;
-                textStrPtr = vl->line;
+                voiceLineId = 0;
             }
+            VoiceLine *vl = LlGetAt(scene.voiceLineLl, voiceLineId);
+            nameStrPtr = vl->name;
+            textStrPtr = vl->line;
         }
         Rectangle textRec = (Rectangle){SPACING, 2*screenHeight/3, screenWidth-2*SPACING, screenHeight/3-2*SPACING};
         Rectangle nameRec = (Rectangle){SPACING, 2*screenHeight/3-20*scale-SPACING, MeasureTextEx(gameFont, nameStrPtr, textSize, 1).x+SPACING, textSize+SPACING};
         //-Update variables.-
+drawing:
         UpdateMusicStream(*scene.music);
         BeginDrawing();
             ClearBackground(GRAY);
             float bgscale = fmaxf((float)screenHeight/(scene.background->height), (float)screenWidth/(scene.background->width));
             DrawTextureEx(*scene.background, (Vector2){0,0}, 0, bgscale, WHITE);
+            // Drawing characters at scene.
             for(int i=0, n = scene.characterLl->size; i<scene.characterLl->size; i++){
                 char      *characterName    = LlGetAt(scene.characterLl, i);
                 if(strcmp(characterName, "NONE")==0){break;}
@@ -311,14 +310,15 @@ int main(int argc, char **argv){
                 Vector2    characterPos     = (Vector2){screenWidth/(2*n)+i*screenWidth/n-characterTexture.width*characterScale/2, screenHeight/4};
                 DrawTextureEx(characterTexture, characterPos, 0, characterScale, WHITE);
             }
+            //-Drawing characters at scene.-
             DrawRectangleRounded(     nameRec, 0.5, 5,    GRAY);
             DrawRectangleRoundedLines(nameRec, 0.5, 5, 2, BLACK);
             DrawRectangleRounded(     textRec, 0.1, 5,    (Color){200, 200, 200, 150});
             DrawRectangleRoundedLines(textRec, 0.1, 5, 2, BLACK);
-            DrawTextEx(gameFont, textStrPtr, (Vector2){SPACING+SPACING, 2*screenHeight/3+SPACING}, textSize, 1, BLACK);
+            DrawTextEx(gameFont, TextSubtext(textStrPtr, 0, framesCounter/TEXTSPEED), (Vector2){SPACING+SPACING, 2*screenHeight/3+SPACING}, textSize, 1, BLACK);
             DrawTextEx(gameFont, nameStrPtr, (Vector2){nameRec.x+SPACING/2, nameRec.y+SPACING/2}, textSize, 1, BLACK);
-            DrawFPS(10, 10);
         EndDrawing();
+        framesCounter+=2;
     }
     CloseWindow();
     // free shit out of RAM
