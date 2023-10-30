@@ -61,6 +61,22 @@ typedef struct {
     char *line;
 } VoiceLine;
 
+void GuiSlider(Rectangle bounds, float *value, float minValue, float maxValue){
+    float temp = (maxValue - minValue)/2.0f;
+    if (value == NULL) value = &temp;
+    int sliderValue = (int)(((*value - minValue)/(maxValue - minValue))*(bounds.width));
+    Rectangle slider = { bounds.x, bounds.y, 0, bounds.height};
+    slider.width = (float)sliderValue;
+    Vector2 mousePoint = GetMousePosition();
+    if (CheckCollisionPointRec(mousePoint, bounds)&& IsMouseButtonDown(MOUSE_LEFT_BUTTON)){
+        *value = ((maxValue - minValue)*(mousePoint.x - bounds.x))/(float)(bounds.width) + minValue;
+        if (*value > maxValue) *value = maxValue;
+        else if (*value < minValue) *value = minValue;
+    }
+    DrawRectangleRec(bounds, RAYWHITE);
+    DrawRectangleRec(slider, JET);
+}
+
 Scene *ParseSceneJson(char **gameJson){
     Scene *scene = malloc(sizeof(Scene));
 
@@ -134,6 +150,8 @@ int main(int argc, char **argv){
     SetExitKey(KEY_F10);
     bool menuOpened     = true;
     bool audioMuted     = true;
+    float audioVolume     = 0.5;
+    SetMasterVolume((audioMuted)?0:audioVolume);
     bool settingsOpened = false;
     int tmp;
     int framesCounter = 0;
@@ -158,6 +176,10 @@ int main(int argc, char **argv){
     jsonEntry = JsonPEAS(&gameJson);
     ENTRYCHECK("MenuBg")
     Texture2D bgMenu = LoadTexture(JsonPEAS(&gameJson));
+
+    jsonEntry = JsonPEAS(&gameJson);
+    ENTRYCHECK("MenuMusic")
+    Music menuMusic = LoadMusicStream(JsonPEAS(&gameJson));
 
     AssList assListObj = AssInit();
     AssList *assList = &assListObj;
@@ -206,19 +228,24 @@ int main(int argc, char **argv){
         //-Global game variables.-
         if(settingsOpened){
             tmp = MeasureTextEx(gameFont, "Mute", textSize, 1).x;
-            Button muteBtn = (Button){(Rectangle){screenHalfX-tmp/2, screenHalfY, SPACING+tmp, SPACING+textSize},
+            Button muteBtn = (Button){(Rectangle){screenHalfX-tmp/2-100, screenHalfY, SPACING+tmp, SPACING+textSize},
                                         "Mute", BLACK, (audioMuted)?GRAY:WHITE, JET, RAYWHITE, tmp};
             if(CheckCollisionPointRec(mousePosition, muteBtn.rec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-                SetMasterVolume((audioMuted)?0.5: 0);
+                SetMasterVolume((audioMuted)?0:audioVolume);
                 audioMuted=!audioMuted;
             }
             BeginDrawing();
                 ClearBackground(BLACK);
                 DRAWBTN(muteBtn)
+                GuiSlider((Rectangle){screenHalfX-50, muteBtn.rec.y+SPACING/2, 200, textSize}, &audioVolume, 0, 1);
+                SetMasterVolume((audioMuted)?0:audioVolume);
             EndDrawing();
             continue;
         }
         if(menuOpened){
+            if(!IsMusicStreamPlaying(menuMusic)){
+                PlayMusicStream(menuMusic);
+            }
             tmp = MeasureTextEx(gameFont, "Start Game", textSize, 1).x;
             Rectangle startBtnRec = (Rectangle){screenHalfX-tmp/2, screenHalfY, SPACING+tmp, SPACING+textSize};
             Button startBtn = (Button){startBtnRec, "Start Game", BLACK, WHITE, JET, RAYWHITE, tmp};
@@ -237,11 +264,13 @@ int main(int argc, char **argv){
                 if(audioMuted){
                     SetMasterVolume(0);
                 }
+                StopMusicStream(menuMusic);
                 PlayMusicStream(*scene.music);
             }
             if(CheckCollisionPointRec(mousePosition, settingsBtn.rec) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                 settingsOpened = true;
             }
+            UpdateMusicStream(menuMusic);
             BeginDrawing();
                 ClearBackground(GREEN);
                 float bgscale = fmaxf((float)screenHeight/(bgMenu.height), (float)screenWidth/(bgMenu.width));

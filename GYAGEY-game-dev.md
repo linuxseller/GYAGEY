@@ -24,6 +24,7 @@ If you want no characters displayed for current scene, put 'NONE' in scene chara
     "Game" : {
         "Name"      : "<Game Title>",
         "MenuBg"    : "<path to menu background png>",
+        "MenuMusic" : "<path to menu music {mp3, wav}>",
         "<character 1 name>" : "<path to character1 png>",
         "<character 2 name>" : "<path to character2 png>",
         "<character 3 name>" : "<path to character3 png>",
@@ -85,6 +86,7 @@ If you want no characters displayed for current scene, put 'NONE' in scene chara
     "Game" : {
         "Name"      : "<Название игры>",
         "MenuBg"    : "<путь к png фона меню>",
+        "MenuMusic" : "<путь к музыке в меню {mp3, wav}>",
         "<имя персонажа 1>" : "<путь к изображению персонажа 1>",
         "<имя персонажа 2>" : "<путь к изображению персонажа 2>",
         "<имя персонажа 3>" : "<путь к изображению персонажа 3>",

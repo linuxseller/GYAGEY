@@ -2,6 +2,7 @@
     "Game" : {
         "Name"      : "Неко Арк Злая",
         "MenuBg"    : "resources/images/Menu.png",
+        "MenuMusic" : "resources/music/Lo-Fi.mp3",
         "Sanya"     : "resources/images/Sanya.png",
         "Neco Arc"  : "resources/images/ark.png"
     },
