@@ -11,22 +11,11 @@ typedef struct Node {
 typedef struct {
     Node *ptr;
     int size;
+    void (*free)(void*);
 } Llist;
-Llist LlInit(void){
-    return (Llist){NULL, 0};
-}
 
-int LlFree(Llist *a){
-    Node *node = a->ptr;
-    while(node->next!=NULL){
-        node = node->next;
-    }
-    while(node->prev!=NULL){
-        free(node->value);
-        node = node->prev;
-        free(node);
-    }
-    return 0;
+Llist LlInit(void){
+    return (Llist){NULL, 0, NULL};
 }
 
 Node *NodeGetPtrAt(Node *node, int n){
@@ -36,39 +25,50 @@ Node *NodeGetPtrAt(Node *node, int n){
     return NodeGetPtrAt(node->next, n-1);
 }
 
-void LlAppend(Llist *a, void *value){
+void LlAppend(Llist *ll, void *value){
     Node *tmpNode = malloc(sizeof(*tmpNode));
     tmpNode->value = value;
     tmpNode->next = NULL;
-    if(a->size==0){
-        a->ptr = tmpNode;
-        a->size+=1;
+    if(ll->size==0){
+        ll->ptr = tmpNode;
+        ll->size+=1;
     } else {
-        Node *lastNode = NodeGetPtrAt(a->ptr, a->size-1);
+        Node *lastNode = NodeGetPtrAt(ll->ptr, ll->size-1);
         lastNode->next = tmpNode;
         tmpNode->prev = lastNode; 
-        a->size+=1;
+        ll->size+=1;
     }
 }
 
-int LlPop(Llist *a, int index){
-    if (index<0 || index>a->size){
+int LlPop(Llist *ll, int index){
+    if (index<0 || index>ll->size){
         return -1;
     }
-    Node *nodeCurr=NodeGetPtrAt(a->ptr, index);
+    Node *nodeCurr=NodeGetPtrAt(ll->ptr, index);
     if(index==0){
-        a->ptr = nodeCurr->next;
-        a->ptr->prev = NULL;
+        ll->ptr = nodeCurr->next;
+        ll->ptr->prev = NULL;
     } else {
         nodeCurr->prev->next = nodeCurr->next;
         nodeCurr->next->prev = nodeCurr->prev;
     }
     free(nodeCurr);
-    a->size--;
+    ll->size--;
     return 0;
 }
 
-void *LlGetAt(Llist *a, int index){
-    return NodeGetPtrAt(a->ptr, index)->value;
+void *LlGetAt(Llist *ll, int index){
+    return NodeGetPtrAt(ll->ptr, index)->value;
 }
+
+void LlFree(Llist *ll){
+    Node* node = ll->ptr;
+    while(node!=NULL){
+        ll->free(node->value);
+        Node *curnode = node;
+        node=node->next;
+        free(curnode);
+    }
+}
+
 #endif

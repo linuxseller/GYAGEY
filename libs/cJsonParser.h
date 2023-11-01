@@ -19,9 +19,7 @@ typedef struct {
 
 char *JsonText;
 #ifdef JSON_IMPL
-char *JsonReadWholeFile(const char *fileName){
-    FILE *f = fopen(fileName, "rb");
-    if(f==NULL){return NULL;}
+char *JsonReadWholeFile(FILE *f){
     fseek(f, 0, SEEK_END);
     long fsize = ftell(f);
     fseek(f, 0, SEEK_SET);

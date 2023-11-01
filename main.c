@@ -16,7 +16,7 @@
 #define DEFAULT_H 480
 #define SPACING 10*scale
 #define FONT_FILENAME "resources/fonts/OpenSans-Regular.ttf"
-#define TEXTSPEED 10
+#define TEXTBPSSPEED 10
 
 #define JET (Color){48,48,48, 255}
 
@@ -49,6 +49,19 @@ typedef struct {
 }
 
 typedef struct {
+    char *name;
+    char *line;
+} VoiceLine;
+
+// function for passing to LlFree(void *ptr)
+void FreeVoiceLine(void *ptr){
+    VoiceLine *vl = (VoiceLine*)ptr;
+    return;
+    free(vl->name);
+    free(vl->line);
+}
+
+typedef struct {
     int number;
     Llist *characterLl;
     Texture2D *background;
@@ -56,16 +69,20 @@ typedef struct {
     Music *music;
 } Scene;
 
-typedef struct {
-    char *name;
-    char *line;
-} VoiceLine;
+// function for passing to LlFree(void *ptr)
+void FreeScene(void *ptr){
+    Scene *scene = (Scene*)ptr;
+    LlFree(scene->characterLl);
+    LlFree(scene->voiceLineLl);
+    UnloadTexture(*scene->background);
+    UnloadMusicStream(*scene->music);
+}
 
 void GuiSlider(Rectangle bounds, float *value, float minValue, float maxValue){
     float temp = (maxValue - minValue)/2.0f;
     if (value == NULL) value = &temp;
     int sliderValue = (int)(((*value - minValue)/(maxValue - minValue))*(bounds.width));
-    Rectangle slider = { bounds.x, bounds.y, 0, bounds.height};
+    Rectangle slider = {bounds.x, bounds.y, 0, bounds.height};
     slider.width = (float)sliderValue;
     Vector2 mousePoint = GetMousePosition();
     if (CheckCollisionPointRec(mousePoint, bounds)&& IsMouseButtonDown(MOUSE_LEFT_BUTTON)){
@@ -77,6 +94,7 @@ void GuiSlider(Rectangle bounds, float *value, float minValue, float maxValue){
     DrawRectangleRec(slider, JET);
 }
 
+// PEASEs json
 Scene *ParseSceneJson(char **gameJson){
     Scene *scene = malloc(sizeof(Scene));
 
@@ -110,12 +128,14 @@ Scene *ParseSceneJson(char **gameJson){
     jsonEntry = JsonPEAS(gameJson);
     ENTRYCHECK("Characters")
     scene->characterLl = JsonParseStringArrToLl(gameJson);
+    scene->characterLl->free=free;
 
     jsonEntry = JsonPEAS(gameJson);
     ENTRYCHECK("Frases")
     Llist *lineList = malloc(sizeof(Llist));
-    lineList->ptr=NULL;
-    lineList->size=0;
+    lineList->ptr  = NULL;
+    lineList->size = 0;
+    lineList->free = &FreeVoiceLine;
     jsonEntry = JsonPEAS(gameJson);
     while(strcmp(jsonEntry, "END")!=0){
         VoiceLine *vl = malloc(sizeof(*vl));
@@ -164,7 +184,16 @@ int main(int argc, char **argv){
     for (int i = 0; i < 95; i++) codepoints[i] = 32 + i;   // Basic ASCII characters
     for (int i = 0; i < 255; i++) codepoints[96 + i] = 0x400 + i;   // Cyrillic characters
     Font gameFont = LoadFontEx(FONT_FILENAME, 32, codepoints, 512);
-    char *gameJson = JsonReadWholeFile(gameJsonFileName);
+    FILE *gameJsonFILE = fopen(gameJsonFileName, "r");
+    if(gameJsonFILE==NULL){
+        #include "template.c"
+        gameJsonFILE = fopen("game.json", "w");
+        clogger(CLOGGER_WARN, "No game json file found or provided. Generating new 'game.json'...");
+        fprintf(gameJsonFILE, "%s", templateGameJson);
+        clogger(CLOGGER_WARN, "Exiting");
+        exit(0);
+    }
+    char *gameJson = JsonReadWholeFile(gameJsonFILE);
     char *strptrcpy = gameJson; // free later
     char *jsonEntry = JsonPEAS(&gameJson);
     ENTRYCHECK("Game")
@@ -202,9 +231,11 @@ int main(int argc, char **argv){
     int sceneId = 0;
     Llist sceneLlObj = LlInit();
     Llist *sceneLl = &sceneLlObj;
+    sceneLl->free = &FreeScene;
     while(JsonHasNextEntry(gameJson)){
         LlAppend(sceneLl, ParseSceneJson(&gameJson));
     }
+    clogger(CLOGGER_INFO, "Loaded scene list of length %d\n", sceneLl->size);
     Scene scene = *(Scene *)LlGetAt(sceneLl, sceneId++);
     
     char *nameStrPtr;
@@ -300,7 +331,7 @@ int main(int argc, char **argv){
         // Game part HERE.
         // Update variables.
         if(IsKeyPressed(KEY_SPACE)){
-            if(framesCounter/TEXTSPEED<(int)strlen(textStrPtr)){
+            if(framesCounter/TEXTBPSSPEED<(int)strlen(textStrPtr)){
                 framesCounter=10000;
                 goto drawing;
             }
@@ -331,8 +362,8 @@ drawing:
             DrawTextureEx(*scene.background, (Vector2){0,0}, 0, bgscale, WHITE);
             // Drawing characters at scene.
             for(int i=0, n = scene.characterLl->size; i<scene.characterLl->size; i++){
+                if(strcmp(nameStrPtr, "NONE")==0){break;}
                 char      *characterName    = LlGetAt(scene.characterLl, i);
-                if(strcmp(characterName, "NONE")==0){break;}
                 Texture2D  characterTexture = *(Texture2D*)AssGet(assList, characterName);
                 float      characterScale   = fminf((float)screenWidth/(2*characterTexture.width), (float)screenHeight/(2*characterTexture.height)); // get scale depending on biggest dimention of texture
                 if(strcmp(characterName, nameStrPtr)==0){characterScale*=1.1;}
@@ -340,17 +371,20 @@ drawing:
                 DrawTextureEx(characterTexture, characterPos, 0, characterScale, WHITE);
             }
             //-Drawing characters at scene.-
-            DrawRectangleRounded(     nameRec, 0.5, 5,    GRAY);
-            DrawRectangleRoundedLines(nameRec, 0.5, 5, 2, BLACK);
+            if(strcmp(nameStrPtr, "NONE")){
+                DrawRectangleRounded(     nameRec, 0.5, 5,    GRAY);
+                DrawRectangleRoundedLines(nameRec, 0.5, 5, 2, BLACK);
+                DrawTextEx(gameFont, nameStrPtr, (Vector2){nameRec.x+SPACING/2, nameRec.y+SPACING/2}, textSize, 1, BLACK);
+            }
             DrawRectangleRounded(     textRec, 0.1, 5,    (Color){200, 200, 200, 150});
             DrawRectangleRoundedLines(textRec, 0.1, 5, 2, BLACK);
-            DrawTextEx(gameFont, TextSubtext(textStrPtr, 0, framesCounter/TEXTSPEED), (Vector2){SPACING+SPACING, 2*screenHeight/3+SPACING}, textSize, 1, BLACK);
-            DrawTextEx(gameFont, nameStrPtr, (Vector2){nameRec.x+SPACING/2, nameRec.y+SPACING/2}, textSize, 1, BLACK);
+            DrawTextEx(gameFont, TextSubtext(textStrPtr, 0, framesCounter/TEXTBPSSPEED), (Vector2){SPACING+SPACING, 2*screenHeight/3+SPACING}, textSize, 1, BLACK);
         EndDrawing();
         framesCounter+=2;
     }
     CloseWindow();
     // free shit out of RAM
     free(strptrcpy);
+    LlFree(sceneLl);
     return 0;
 }
