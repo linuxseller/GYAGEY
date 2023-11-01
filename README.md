@@ -7,12 +7,15 @@ Graphics Yet Another Game Engine. Yep.
 
 ```console
 $ make
-$ ./gyagey ./game.json
+$ ./gyagey
 ```
+
+Game json file can be provided in first argument. Default is `game.json`
+
 ## Gameplay 
 
  - Start.
- - Settings (only sound mute for now).
+ - Settings.
  - press <r> to restart when game ended.
  - <Esc> to settings.
 
@@ -29,13 +32,13 @@ coming soon...
 
 ```console
 $ make
-$ ./gyagey ./game.json
+$ ./gyagey
 ```
-
+Json файл игры можно передать в качестве певрого аргумента. Если не передать ГОЙДА попробует открыть `game.json`
 ## Геймплей
 
  - Старт.
- - Настройки (только мут звука (пока)).
+ - Настройки.
  - Нажмите <r> что бы перезапустить после концовки.
  - <Esc> - настройки.
 
