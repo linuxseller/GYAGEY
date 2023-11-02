@@ -39,6 +39,11 @@ If you want no characters displayed for current scene, put 'NONE' in scene chara
                     "<character 1 name>" : "<voice line>"
                     "<character 3 name>" : "<voice line>"
                     "<character 2 name>" : "<voice line>"
+                    "CHOISE":{
+                        "<scene id>" : "Choice text 1",
+                        "<scene id>" : "choice text 2",
+                        "0": "0"
+                    },
                     "END":"END"
                 }
             },
@@ -49,9 +54,21 @@ If you want no characters displayed for current scene, put 'NONE' in scene chara
                     "NONE" : "<voice line>"
                     "NONE" : "<voice line>"
                     "NONE" : "<voice line>"
+                    "GOTO" : "<scene id>"
                     "END":"END"
                 }
             }
+        "3" : { "Background" : "<path to scene background png>",
+                "Music"      : "<path to scene music file{mp3, wav}>",
+                "Characters" : ["NONE"],
+                "Frases"     : {
+                    "NONE" : "<voice line>"
+                    "NONE" : "<voice line>"
+                    "NONE" : "<voice line>"
+                    "GOTO" : "<scene id>"
+                    "END":"THE END"
+                }
+        }
     }
 }
 ```
