@@ -36,12 +36,12 @@ If you want no characters displayed for current scene, put 'NONE' in scene chara
                 "Music"      : "<path to scene music file{mp3, wav}>",
                 "Characters" : ["<character 1 name>", "<character 2 name>"...],
                 "Frases"     : {
-                    "<character 1 name>" : "<voice line>"
-                    "<character 3 name>" : "<voice line>"
-                    "<character 2 name>" : "<voice line>"
-                    "CHOISE":{
-                        "<scene id>" : "Choice text 1",
-                        "<scene id>" : "choice text 2",
+                    "<character 1 name>" : "<voice line>",
+                    "<character 3 name>" : "<voice line>",
+                    "<character 2 name>" : "<voice line>",
+                    "CHOICE":{
+                        "<scene id>" : "<Choice text 1>",
+                        "<scene id>" : "<Choice text 2>",
                         "0": "0"
                     },
                     "END":"END"
@@ -51,10 +51,10 @@ If you want no characters displayed for current scene, put 'NONE' in scene chara
                 "Music"      : "<path to scene music file{mp3, wav}>",
                 "Characters" : ["NONE"],
                 "Frases"     : {
-                    "NONE" : "<voice line>"
-                    "NONE" : "<voice line>"
-                    "NONE" : "<voice line>"
-                    "GOTO" : "<scene id>"
+                    "NONE" : "<voice line>",
+                    "NONE" : "<voice line>",
+                    "NONE" : "<voice line>",
+                    "GOTO" : "<scene id>",
                     "END":"END"
                 }
             }
@@ -62,10 +62,10 @@ If you want no characters displayed for current scene, put 'NONE' in scene chara
                 "Music"      : "<path to scene music file{mp3, wav}>",
                 "Characters" : ["NONE"],
                 "Frases"     : {
-                    "NONE" : "<voice line>"
-                    "NONE" : "<voice line>"
-                    "NONE" : "<voice line>"
-                    "GOTO" : "<scene id>"
+                    "NONE" : "<voice line>",
+                    "NONE" : "<voice line>",
+                    "NONE" : "<voice line>",
+                    "GOTO" : "<scene id>",
                     "END":"THE END"
                 }
         }
@@ -115,9 +115,15 @@ If you want no characters displayed for current scene, put 'NONE' in scene chara
                 "Music"      : "<путь к фоновой музыке{mp3, wav}>",
                 "Characters" : ["<имя персонажа 1>", "<имя персонажа 2>", ...],
                 "Frases"     : {
-                    "<имя персонажа 1>" : "<реплика>"
-                    "<имя персонажа 3>" : "<реплика>"
-                    "<имя персонажа 2>" : "<реплика>"
+                    "<имя персонажа 1>" : "<реплика>",
+                    "<имя персонажа 3>" : "<реплика>",
+                    "<имя персонажа 2>" : "<реплика>",
+                    "CHOICE":{
+                        "<id сцены>" : "<Выбор 1>",
+                        "<id сцены>" : "<Выбор 2>",
+                        "0": "0"
+                    },
+
                     "END":"END"
                 }
             },
@@ -125,10 +131,21 @@ If you want no characters displayed for current scene, put 'NONE' in scene chara
                 "Music"      : "<путь к фоновой музыке{mp3, wav}>",
                 "Characters" : ["NONE"],
                 "Frases"     : {
-                    "NONE" : "<реплика>"
-                    "NONE" : "<реплика>"
-                    "NONE" : "<реплика>"
+                    "NONE" : "<реплика>",
+                    "NONE" : "<реплика>",
+                    "NONE" : "<реплика>",
                     "END":"END"
+                }
+        }
+        "3" : { "Background" : "<путь к изображению фона сцены>
+                "Music"      : "<путь к фоновой музыке{mp3, wav}>",
+                "Characters" : ["NONE"],
+                "Frases"     : {
+                    "NONE" : "<реплика>",
+                    "NONE" : "<реплика>",
+                    "NONE" : "<реплика>",
+                    "GOTO" : "<id сцены>",
+                    "END":"THE END"
                 }
         }
     }

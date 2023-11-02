@@ -8,34 +8,51 @@
     },
     "Scenes" : {
         "1" : { "Background" : "resources/images/Sky.png",
-                "Music"      : "resources/music/theme.mp3",
+                "Music"      : "resources/music/Lo-Fi.mp3",
                 "Characters" : ["NONE"],
                 "Frases"     : {
                     "NONE" : "Был обычный хороший день...",
                     "NONE" : "Ничего плохого не могло произойти...",
                     "NONE" : "Ничего...",
                     "NONE" : "Кроме...",
+                    "CHOICE":{
+                        "2" : "Неко Аркокалипсиса!!!",
+                        "4" : "Ничего.",
+                        "0" : "0"
+                    },
                     "END":"END"
                 }
             },
         "2" : { "Background" : "resources/images/WindowLook.png",
-                "Music"      : "resources/music/theme.mp3",
+                "Music"      : "resources/music/Lo-Fi.mp3",
                 "Characters" : ["Neco Arc"],
                 "Frases"     : {
-                    "Cat" : "Дъян...",
-                    "Cat" : "Дъяян...",
-                    "Cat" : "Дъяяян...",
+                    "Neco Arc" : "Дъян...",
+                    "Neco Arc" : "Дъяян...",
+                    "Neco Arc" : "Дъяяян...",
+                    "GOTO": "3",
                     "END":"END"
                 }
         },
         "3" : { "Background" : "resources/images/RedSky.png",
-                "Music"      : "resources/music/theme.mp3",
+                "Music"      : "resources/music/Lo-Fi.mp3",
                 "Characters" : ["NONE"],
                 "Frases"     : {
                     "NONE" : "Кроме того когда все накрылось медным тазом",
                     "NONE" : "И начался ад на Земле",
                     "NONE" : "Никто не мог выжить",
-                    "END":"END"
+                    "END":"THE END"
+                }
+        },
+        "4" : { "Background" : "resources/images/Sky.png",
+                "Music"      : "resources/music/Lo-Fi.mp3",
+                "Characters" : ["NONE"],
+                "Frases"     : {
+                    "NONE" : "Ничего и не произошло.",
+                    "NONE" : "Ничего не произошло, никто не умер и все остались живы.",
+                    "NONE" : "Каааанец",
+                    "GOTO" : "0",
+                    "END":"THE END"
                 }
         }
     }
