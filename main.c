@@ -56,7 +56,6 @@ typedef struct {
 // function for passing to LlFree(void *ptr)
 void FreeVoiceLine(void *ptr){
     VoiceLine *vl = (VoiceLine*)ptr;
-    return;
     free(vl->name);
     free(vl->line);
 }
@@ -69,7 +68,6 @@ typedef struct {
 // function for passing to LlFree(void *ptr)
 void FreeChoice(void *ptr){
     Choice *vl = (Choice*)ptr;
-    return;
     free(vl->id);
     free(vl->text);
 }
@@ -91,7 +89,9 @@ void FreeScene(void *ptr){
     Scene *scene = (Scene*)ptr;
     LlFree(scene->characterLl);
     LlFree(scene->voiceLineLl);
-    LlFree(scene->choicesLl);
+    if(scene->nextSceneId==0){
+        LlFree(scene->choicesLl);
+    }
     UnloadTexture(*scene->background);
     UnloadMusicStream(*scene->music);
 }
@@ -207,7 +207,6 @@ int main(int argc, char **argv){
     char *gameJsonFileName = "game.json";
     if(argc==2){
         gameJsonFileName = argv[1];
-        //clogger(CLOGGER_ERROR, "game json file not provided.\n");
         //exit(1);
     }
     // Raylib initialising.
