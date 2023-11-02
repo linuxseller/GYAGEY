@@ -137,7 +137,7 @@ If you want no characters displayed for current scene, put 'NONE' in scene chara
                     "END":"END"
                 }
         }
-        "3" : { "Background" : "<путь к изображению фона сцены>
+        "3" : { "Background" : "<путь к изображению фона сцены>",
                 "Music"      : "<путь к фоновой музыке{mp3, wav}>",
                 "Characters" : ["NONE"],
                 "Frases"     : {
