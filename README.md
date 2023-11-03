@@ -1,28 +1,3 @@
-# GYAGEY
-
-## English
-Graphics Yet Another Game Engine. Yep.
-
-## Quick Start
-
-```console
-$ make
-$ ./gyagey
-```
-
-Game json file can be provided in first argument. Default is `game.json`
-
-## Gameplay 
-
- - Start.
- - Settings.
- - press <r> to restart when game ended.
- - <Esc> to settings.
-
-## Json file structure
-
-coming soon...
-
 # ГОЙДА
 
 ## Русский
@@ -32,17 +7,46 @@ coming soon...
 
 ```console
 $ make
-$ ./gyagey
+$ ./gyagey <optional game.json>
 ```
-Json файл игры можно передать в качестве певрого аргумента. Если не передать ГОЙДА попробует открыть `game.json`
-## Геймплей
+Json файл игры можно передать в качестве певрого аргумента. Если не передать, ГОЙДА попробует открыть `game.json`
 
- - Старт.
- - Настройки.
- - Нажмите <r> что бы перезапустить после концовки.
- - <Esc> - настройки.
+## Функционал
+
+На данный момент поддерживается:
+
+- Отдельная музыка на каждую сцену.
+- Одна картинка на персонажа.
+- Выбор действия в конце сцен (ветвление сюжета) (опционально).
 
 ## Структура json файла
 
-Позже...
+[Разработка под ГОЙДу](GYAGEY-game-dev.md)
+
+# GYAGEY (GOYDA)
+
+## English
+Graphics Yet Another Game Engine. Yep.
+
+## Quick Start
+
+```console
+$ make
+$ ./gyagey <optional game.json>
+```
+
+Game json file can be provided in first argument. Default is `game.json`
+
+## Functionality
+
+As for now, supported:
+
+- Separate music for every scene.
+- One image for character.
+- Plot splitting at the end of scene (optional).
+
+## Json file structure
+
+[GOYDA Developing documentation](GYAGEY-game-dev.md)
+
 

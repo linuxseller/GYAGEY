@@ -19,7 +19,22 @@
 #define TEXTBPSSPEED 10
 
 #define JET (Color){48,48,48, 255}
-
+void ShowErrorFrontend(const char *errText, const char *elaboration){
+    int screenWidth, screenHeight, screenHalfX, screenHalfY;
+    while(!WindowShouldClose()){
+        ClearBackground(BLACK);
+        screenWidth = GetScreenWidth();
+        screenHeight = GetScreenHeight();
+        screenHalfX = screenWidth/2;
+        screenHalfY = screenHeight/2;
+        float scale = fminf((float)screenHeight/DEFAULT_H, (float)screenWidth/DEFAULT_W);
+        float textSize = scale*20;
+        BeginDrawing();
+            DrawText(errText, screenHalfX - MeasureText(errText, textSize)/2, screenHalfY-3*textSize/2, textSize, RED);
+            DrawText(elaboration, screenHalfX - MeasureText(elaboration, textSize)/2, screenHalfY+3*textSize/2, textSize, RED);
+        EndDrawing();
+    }
+}
 int min(int x, int y){
   return (x < y) ? x : y;
 }
@@ -41,11 +56,12 @@ typedef struct {
     DrawTextEx(gameFont, btn.text, (Vector2){btn.rec.x+5,btn.rec.y+5}, textSize, 1, (!hovered)?btn.bdColor:btn.hoverColorText); \
 }
 
-#define ENTRYCHECK(str){ \
-    if(strcmp(jsonEntry, str)!=0){ \
-        clogger(CLOGGER_ERROR, "scene json format error in %s: got %s\n", str, jsonEntry); \
-        exit(1); \
-    } \
+#define ENTRYCHECK(str){                                                                                    \
+    if(strcmp(jsonEntry, str)!=0){                                                                          \
+        ShowErrorFrontend("[ERROR] Scene format error.", "Game file is broken. Try reinstalling game files.");  \
+        clogger(CLOGGER_ERROR, "scene json format error in %s: got %s\n", str, jsonEntry);                  \
+        exit(1);                                                                                            \
+    }                                                                                                       \
 }
 
 typedef struct {
@@ -202,6 +218,8 @@ void GuiSlider(Rectangle bounds, float *value, float minValue, float maxValue){
     DrawRectangleRec(slider, JET);
 }
 
+
+
 //printf("Hello My Froinde!\n"); exit(0);
 int main(int argc, char **argv){
     char *gameJsonFileName = "game.json";
@@ -238,11 +256,13 @@ int main(int argc, char **argv){
     Font gameFont = LoadFontEx(FONT_FILENAME, 32, codepoints, 512);
     FILE *gameJsonFILE = fopen(gameJsonFileName, "r");
     if(gameJsonFILE==NULL){
-        #include "template.c"
+        /*#include "template.c"
         gameJsonFILE = fopen("game.json", "w");
         clogger(CLOGGER_WARN, "No game json file found or provided. Generating new 'game.json'...");
         fprintf(gameJsonFILE, "%s", templateGameJson);
-        clogger(CLOGGER_WARN, "Exiting");
+        */
+        ShowErrorFrontend("[ERROR] Could not find game json file.", "Please exit and provede game file.");
+        clogger(CLOGGER_ERROR, "Could not find game json file. Exiting.");
         exit(0);
     }
     char *gameJson = JsonReadWholeFile(gameJsonFILE);

@@ -66,7 +66,6 @@ void LlFree(Llist *ll){
     while(node!=NULL){
         ll->free(node->value);
         Node *curnode = node;
-        clogger(CLOGGER_INFO, "freed node %p", node);
         node=node->next;
         free(curnode);
     }
