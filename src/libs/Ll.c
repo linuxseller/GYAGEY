@@ -1,28 +1,13 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-#ifdef LL_IMPL
-typedef struct Node {
-    void *value;
-    struct Node *next;
-    struct Node *prev;
-} Node;
-
-typedef struct {
-    Node *ptr;
-    int size;
-    void (*free)(void*);
-} Llist;
-
-Llist LlInit(void){
-    return (Llist){NULL, 0, NULL};
-}
-
+#include "Ll.h"
 Node *NodeGetPtrAt(Node *node, int n){
     if(n==0){
         return node;
     }
     return NodeGetPtrAt(node->next, n-1);
+}
+
+Llist LlInit(void){
+    return (Llist){NULL, 0, NULL};
 }
 
 void LlAppend(Llist *ll, void *value){
@@ -71,4 +56,4 @@ void LlFree(Llist *ll){
     }
 }
 
-#endif
+

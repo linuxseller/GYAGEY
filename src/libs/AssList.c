@@ -1,19 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#ifdef ASSLIST_IMPL
-
-#ifndef LL_IMPL
-#define LL_IMPL
-#include "Ll.h"
-#endif
-typedef struct {
-    char *key;
-    void *value;
-} AssPair;
-
-typedef Llist AssList;
+#include "AssList.h"
 
 AssList AssInit(void){
     AssList assListObj = LlInit();
@@ -36,4 +21,4 @@ void* AssGet(AssList *list, char *key){
     } while(strcmp(tmp->key, key)!=0 && i<list->size);
     return tmp->value;
 }
-#endif
+

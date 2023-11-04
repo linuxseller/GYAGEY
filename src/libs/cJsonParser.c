@@ -1,24 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#ifndef LL_IMPL
-#define LL_IMPL
-#include "Ll.h"
-#endif
-
-#ifndef CLOGGER_IMPL
-#define CLOGGER_IMPL
-#include "clogger.h"
-#endif
-
-typedef struct {
-    char* key;
-    char *value;
-} JsonPairString;
-
-char *JsonText;
-#ifdef JSON_IMPL
+#include "cJsonParser.h"
 char *JsonReadWholeFile(FILE *f){
     fseek(f, 0, SEEK_END);
     long fsize = ftell(f);
@@ -26,7 +6,6 @@ char *JsonReadWholeFile(FILE *f){
     char *string = malloc(fsize + 1);
     fread(string, fsize, 1, f);
     fclose(f);
-    JsonText=string;
     return string;
 }
 
@@ -44,9 +23,6 @@ char *JsonPEAS(char **jsonText){
         *jsonText+=1;
     }
     *jsonText+=1;
-#ifdef JSONLOG
-    clogger(CLOGGER_INFO, "json succesfully parsed '%s'", key);
-#endif
     return key;
 }
 
@@ -61,6 +37,7 @@ Llist *JsonParseStringArrToLl(char **jsonText){
     Llist *strList = malloc(sizeof(Llist));
     strList->ptr=NULL;
     strList->size=0;
+    strList->free=free;
     while(**jsonText!=']'){
         char *parsedStr = JsonPEAS(jsonText);
         char *tmp = malloc(strlen(parsedStr)+0);
@@ -70,4 +47,4 @@ Llist *JsonParseStringArrToLl(char **jsonText){
     *jsonText+=1;
     return strList;
 }
-#endif
+
