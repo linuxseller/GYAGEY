@@ -1,8 +1,12 @@
+#pragma once
 #include <stdio.h>
 #define CLOGGER_INFO 0 //"[INFO ] "
 #define CLOGGER_WARN 1 //"[WARN ] "
 #define CLOGGER_ERROR 2 //"[ERROR] "
 typedef int Clogger_type;
+
+void fclogger(FILE* fp, Clogger_type type, const char *fmt, ...);
+void clogger(Clogger_type type, const char *str, ...);
 
 #ifdef CLOGGER_IMPL
 void fclogger(FILE* fp, Clogger_type type, const char *fmt, ...){
