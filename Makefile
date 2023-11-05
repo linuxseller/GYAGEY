@@ -29,7 +29,7 @@ main:
 	$(CC) $(CFLAGS) src/main.c -c -o $(OBJ_DIR)/$@.o
 
 createdir:
-	mkdir obj
+	mkdir -p obj
 
 full: createdir free gui parsers AssList Ll cJsonParser main
 	$(CC) $(CFLAGS) obj/main.o obj/AssList.o obj/cJsonParser.o obj/free.o obj/gui.o obj/Ll.o obj/parsers.o -o gyagey $(CLIBS)
