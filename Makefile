@@ -1,6 +1,6 @@
 CFLAGS=-Wall -Wextra -Werror -pedantic 
 CLIBS=-L. `pkg-config --libs --cflags raylib` -lGL -lm -lpthread -ldl -lrt -lX11
-CC=clang
+CC:=clang
 
 SRC_DIR := ./src
 OBJ_DIR := ./obj
@@ -22,23 +22,20 @@ AssList:
 Ll:
 	$(CC) $(CFLAGS) src/libs/Ll.c -c -o $(OBJ_DIR)/$@.o
 
-cJsonParser:
-	$(CC) $(CFLAGS) src/libs/cJsonParser.c -c -o $(OBJ_DIR)/$@.o
-
 main:
 	$(CC) $(CFLAGS) src/main.c -c -o $(OBJ_DIR)/$@.o
 
 createdir:
 	mkdir -p obj
 
-full: createdir free gui parsers AssList Ll cJsonParser main
-	$(CC) $(CFLAGS) obj/main.o obj/AssList.o obj/cJsonParser.o obj/free.o obj/gui.o obj/Ll.o obj/parsers.o -o gyagey $(CLIBS)
+full: createdir free gui parsers AssList Ll main
+	$(CC) $(CFLAGS) obj/main.o obj/AssList.o obj/free.o obj/gui.o obj/Ll.o obj/parsers.o -o gyagey $(CLIBS)
 
 link:
-	$(CC) $(CFLAGS) src/main.c obj/AssList.o obj/cJsonParser.o obj/free.o obj/gui.o obj/Ll.o obj/parsers.o -o gyagey $(CLIBS)
+	$(CC) $(CFLAGS) src/main.c obj/AssList.o obj/free.o obj/gui.o obj/Ll.o obj/parsers.o -o gyagey $(CLIBS)
 
 cross:
-	x86_64-w64-mingw32-gcc $(CFLAGS) main.c -o gyagey.exe $(CLIBS)
+	x86_64-w64-mingw32-gcc $(CFLAGS) main.c -o gyagey.exe -I../raylib-4.5.0_win32_mingw-w64/include -L../raylib-4.5.0_win32_mingw-w64/lib/ -lraylib
 
 run:
 	./gyagey game.json

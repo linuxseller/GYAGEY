@@ -6,8 +6,6 @@
 
 #define CLOGGER_IMPL
 #include "libs/clogger.h"
-//#define JSONLOG
-#include "libs/cJsonParser.h"
 #include "libs/AssList.h"
 #include "dataTypes.h"
 #include "parsers.h"
