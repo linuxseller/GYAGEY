@@ -15,31 +15,8 @@ int min(int x, int y){
   return (x < y) ? x : y;
 }
 
-typedef struct {
-    Rectangle rec;
-    char *text;
-    Color bdColor;
-    Color bgColor;
-    Color hoverColor;
-    Color hoverColorText;
-    int lenPx;
-} Button;
-
-#define DRAWBTN(btn){ \
-    bool hovered = CheckCollisionPointRec(mousePosition, btn.rec);\
-    DrawRectangleRounded(btn.rec, 0.5, 5, (hovered)?btn.hoverColor:btn.bgColor); \
-    DrawRectangleRoundedLines(btn.rec, 0.5, 5, 2, btn.bdColor); \
-    DrawTextEx(gameFont, btn.text, (Vector2){btn.rec.x+5,btn.rec.y+5}, textSize, 1, (!hovered)?btn.bdColor:btn.hoverColorText); \
-}
-
-
 //printf("Hello My Froinde!\n"); exit(0);
 int main(int argc, char **argv){
-    char *gameJsonFileName = "game.json";
-    if(argc==2){
-        gameJsonFileName = argv[1];
-        //exit(1);
-    }
     // Raylib initialising.
     int screenWidth = DEFAULT_W;
     int screenHeight = DEFAULT_H;
@@ -51,6 +28,15 @@ int main(int argc, char **argv){
     SetWindowState(FLAG_WINDOW_RESIZABLE);
     InitAudioDevice();
     SetExitKey(KEY_F10);
+    //-Raylib initialising.-
+ 
+    // Variables setup.
+    char *gameJsonFileName = "game.json";
+    if(argc==2){
+        gameJsonFileName = argv[1];
+    } else {
+        clogger(CLOGGER_WARN, "Game json not provided. Loading default 'game.json'...");
+    }
     bool menuOpened     = true;
     bool sceneSelect = false;
     bool audioMuted     = true;
@@ -59,21 +45,14 @@ int main(int argc, char **argv){
     bool settingsOpened = false;
     int tmp;
     int framesCounter = 0;
-    //-Raylib initialising.-
-    // Variables setup.
     bool ending = false;
-    // Loading characters info [Name:Image]
+    // Loading characters info. 
     int codepoints[512] = { 0 };
     for (int i = 0; i < 95; i++) codepoints[i] = 32 + i;   // Basic ASCII characters
     for (int i = 0; i < 255; i++) codepoints[96 + i] = 0x400 + i;   // Cyrillic characters
     Font gameFont = LoadFontEx(FONT_FILENAME, 32, codepoints, 512);
     FILE *gameJsonFILE = fopen(gameJsonFileName, "r");
     if(gameJsonFILE==NULL){
-        /*#include "template.c"
-        gameJsonFILE = fopen("game.json", "w");
-        clogger(CLOGGER_WARN, "No game json file found or provided. Generating new 'game.json'...");
-        fprintf(gameJsonFILE, "%s", templateGameJson);
-        */
         ShowErrorFrontend("[ERROR] Could not find game json file.", "Please exit and provede game file.");
         clogger(CLOGGER_ERROR, "Could not find game json file. Exiting.");
         exit(0);
@@ -126,7 +105,6 @@ int main(int argc, char **argv){
     char *nameStrPtr;
     char *textStrPtr;
     int voiceLineId=0;
-    
     //-Variables setup.-
 
     while(!WindowShouldClose()){

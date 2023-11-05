@@ -1,11 +1,11 @@
 #pragma  once
 #include <raylib.h>
 #include "libs/Ll.h"
+
 typedef struct {
     char *name;
     char *line;
 } VoiceLine;
-
 
 typedef struct {
     int *id;

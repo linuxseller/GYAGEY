@@ -1,4 +1,5 @@
 #include "gui.h"
+
 void ShowErrorFrontend(const char *errText, const char *elaboration){
     int screenWidth, screenHeight, screenHalfX, screenHalfY;
     while(!WindowShouldClose()){
